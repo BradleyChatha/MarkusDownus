@@ -1,0 +1,15 @@
+.dub
+docs.json
+__dummy.html
+docs/
+/markusdownus
+markusdownus.so
+markusdownus.dylib
+markusdownus.dll
+markusdownus.a
+markusdownus.lib
+markusdownus-test-*
+*.exe
+*.o
+*.obj
+*.lst

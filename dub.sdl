@@ -1,0 +1,7 @@
+name "markusdownus"
+description "A minimal D application."
+authors "Sealab"
+copyright "Copyright © 2021, Sealab"
+license "MIT"
+dependency "silly" version="~>1.1.1"
+dependency "taggedalgebraic" version="~>0.11.22"
