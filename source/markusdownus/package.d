@@ -1,7 +1,12 @@
 module markusdownus;
 
 public import
-    markusdownus.core,
-    markusdownus.htmlrenderer,
-    markusdownus.syntax1,
-    markusdownus.syntax2;
+    markusdownus.ast,
+    markusdownus.blockpass,
+    markusdownus.blocks,
+    markusdownus.charreader,
+    markusdownus.context,
+    markusdownus.inlines,
+    markusdownus.inlinepass,
+    markusdownus.renderer,
+    markusdownus.htmlrender;

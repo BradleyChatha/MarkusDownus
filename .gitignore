@@ -13,3 +13,4 @@ markusdownus-test-*
 *.o
 *.obj
 *.lst
+test_results/

@@ -3,5 +3,19 @@ description "A minimal D application."
 authors "Sealab"
 copyright "Copyright © 2021, Sealab"
 license "MIT"
-dependency "silly" version="~>1.1.1"
-dependency "taggedalgebraic" version="~>0.11.22"
+
+sourceFiles "libd_win64.obj" platform="windows"
+sourceFiles "libd_sysv.obj"  platform="linux"
+
+versions "MD_HasAsm" platform="windows"
+versions "MD_HasAsm" platform="linux"
+
+preBuildCommands "powershell ./source/asm/make.ps1"
+
+configuration "default" {
+    versions ""
+}
+
+configuration "unittest" {
+    dependency "silly" version="~>1.1.1"
+}

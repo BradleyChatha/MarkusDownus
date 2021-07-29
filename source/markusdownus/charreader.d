@@ -1,18 +1,20 @@
 module markusdownus.charreader;
 
 import std.typecons : Flag;
+import markusdownus._search;
 
 alias IgnoreWhite = Flag!"ignoreWhite";
 alias IgnoreEscaped = Flag!"ignoreEscaped";
 
 struct WhiteInfo
 {
-    size_t spaces;
-    size_t tabs;
+    uint spaces;
 
-    bool isIndentedChunk()
+    uint reduceSpaces(uint amount)
     {
-        return tabs >= 1 || spaces >= 4;
+        if(amount > spaces)
+            amount = spaces;
+        return spaces - amount;
     }
 }
 
@@ -96,17 +98,58 @@ struct CharReader
         return count;
     }
 
+    bool isRestOfLineEmpty(ref size_t newLineChar)
+    {
+        const start = this._cursor;
+        scope(exit) this._cursor = start;
+        while(true)
+        {
+            if(this.eof || this.peek() == '\n')
+            {
+                newLineChar = this._cursor;
+                return true;
+            }
+
+            if(!this.peek.isInlineWhite)
+                return false;
+
+            this.advance(1);
+        }
+    }
+
     bool eatUntil(char ch, out string text)
     {
         const start = this._cursor;
-        while(!this.eof && this.peek() != ch)
-            this.advance(1);
-        text = this._input[start..this._cursor];
-        return !this.eof;
+        const result = indexOfAscii(this._input[this._cursor..$], ch);
+        if(result == INDEX_NOT_FOUND)
+        {
+            this._cursor = this.length;
+            return false;
+        }
+
+        this._cursor += result;
+        text = this._input[start..start+result];
+        return true;
+    }
+
+    // DRY this eventually.
+    bool eatUntilOrEndOfLine(char ch, out string text, out bool wasNewLine)
+    {
+        const start = this._cursor;
+        const result = indexOfAsciiOrEndOfLine(this._input[this._cursor..$], ch, wasNewLine);
+        if(result == INDEX_NOT_FOUND)
+        {
+            this._cursor = this.length;
+            return false;
+        }
+
+        this._cursor += result;
+        text = this._input[start..start+result];
+        return true;
     }
 
     @safe @nogc
-    WhiteInfo eatPrefixWhite() nothrow
+    WhiteInfo eatInlineWhite() nothrow
     {
         WhiteInfo info;
 
@@ -116,7 +159,7 @@ struct CharReader
             if(next == ' ')
                 info.spaces++;
             else if(next == '\t')
-                info.tabs++;
+                info.spaces += 4;
             else
                 break;
             this.advance(1);
@@ -128,25 +171,17 @@ struct CharReader
     @safe @nogc
     void eatLine(out size_t endOfLine) nothrow
     {
-        while(!this.eof)
+        const result = indexOfAscii(this._input[this._cursor..$], '\n');
+        if(result == INDEX_NOT_FOUND)
         {
-            const next = this.peek();
-            this.advance(1);
-
-            if(next == '\n')
-            {
-                endOfLine = this.cursor-1;
-                return;
-            }
-            else if(next == '\r')
-            {
-                endOfLine = this.cursor-1;
-                if(this.peek() == '\n')
-                    this.advance(1);
-                return;
-            }
+            this._cursor = this._input.length;
+            endOfLine = this._input.length;
         }
-        endOfLine = this._input.length;
+        else
+        {
+            this._cursor += result + 1;
+            endOfLine = this._cursor - 1;
+        }
     }
 
     @safe @nogc
@@ -161,37 +196,25 @@ struct CharReader
         return buffer;
     }
 
-    @safe
-    dchar peekUtf(out size_t charsRead) const
-    {
-        import std.utf : decode;
-        auto cursor = this.cursor;
-        const result = this._input.decode(cursor);
-        charsRead = cursor - this.cursor;
-        return result;
-    }
-
-    @safe
-    dchar peekUtfEscaped(out size_t charsRead, out bool wasEscaped)
-    {
-        if(this.peek != '\\')
-            return this.peekUtf(charsRead);
-
-        this.advance(1);
-        wasEscaped = true;
-        if(this.eof)
-            return '\n';
-
-        const result = this.peekUtf(charsRead);
-        charsRead++;
-        this.retreat(1);
-        return result;
-    }
-
     @safe @nogc
     bool atEndOfLine(size_t offset = 0) nothrow const
     {
         return this.eof(offset) || this.peek(offset) == '\n' || this.peek(offset) == '\r';
+    }
+
+    @safe @nogc
+    bool atStartOfLine() nothrow const
+    {
+        size_t offset = this._cursor;
+        while(offset > 0)
+        {
+            if(this.at(offset-1) == '\n')
+                return true;
+            else if(!this.at(offset-1).isInlineWhite())
+                return false;
+            offset--;
+        }
+        return true;
     }
 
     @safe @nogc
@@ -232,7 +255,7 @@ struct CharReader
 }
 
 @safe @nogc
-private bool isInlineWhite(char ch) nothrow pure
+bool isInlineWhite(char ch) nothrow pure
 {
     return ch == ' ' || ch == '\t';
 }
