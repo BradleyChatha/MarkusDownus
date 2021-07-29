@@ -1,0 +1,7 @@
+name "cli"
+description "A minimal D application."
+authors "Sealab"
+copyright "Copyright © 2021, Sealab"
+license "MIT"
+dependency "jcli" version="~>0.12.1"
+dependency "markusdownus" version="~>0.0.1"
