@@ -87,7 +87,7 @@ struct MarkdownLinkInlineParser
         const labelEnd = chars.cursor;
         chars.advance(1);
 
-        if(chars.peek() != '(')
+        if(chars.eof || chars.peek() != '(')
             return MarkdownInlinePassResult.didNothing;
         chars.advance(1);
 
@@ -131,6 +131,8 @@ struct MarkdownLinkInlineParser
             }
         }
         chars.eatInlineWhite();
+        if(chars.eof && !foundEnd)
+            return MarkdownInlinePassResult.didNothing;
 
         size_t titleStart;
         size_t titleEnd;

@@ -31,13 +31,7 @@ unittest
     Case[] success;
     Case[] failed;
 
-    foreach(ref case_; 
-        all
-        .filter!(c => !c.section.canFind("Backslash escapes"))
-        .filter!(c => !c.section.canFind("Entity and numeric"))
-        .filter!(c => !c.section.canFind("Link reference"))
-        .filter!(c => !c.section.canFind("Links"))
-        .filter!(c => !c.section.canFind("Images")))
+    foreach(ref case_; all)
     {
         Appender!(char[]) fixed;
         foreach(i, ch; case_.expected) // Try to make the test expected output match our lack of new lines.
