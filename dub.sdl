@@ -13,7 +13,7 @@ versions "MD_HasAsm" platform="linux"
 preBuildCommands "powershell ./source/asm/make.ps1"
 
 configuration "default" {
-    versions ""
+    versions "__DUMMY_THICC"
 }
 
 configuration "unittest" {

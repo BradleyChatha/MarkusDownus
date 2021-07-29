@@ -71,7 +71,7 @@ struct MarkdownLinkInlineParser
         if(isImage)
         {
             chars.advance(1);
-            if(chars.peek() != '[')
+            if(chars.eof || chars.peek() != '[')
                 return MarkdownInlinePassResult.didNothing;
         }
 
