@@ -8,6 +8,8 @@ A highly extensible Markdown parser that pretends to be CommonMark compliant:
 
 Anyway, super alpha, no docs for now, use at your own risk or just study the code since that's the interesting part.
 
+And yes, *another* alpha library from your's truly.
+
 ## Performance
 
 **KEEP IN MIND THIS LIBRARY IS ONLY PASSING 16%, SO IS PROBABLY DOING MUCH LESS WORK THAN IT SHOULD OTHERWISE BE DOING**
