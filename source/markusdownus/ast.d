@@ -19,7 +19,8 @@ alias MARKDOWN_DEFAULT_LEAF_PARSERS = AliasSeq!(
 
 alias MARKDOWN_DEFAULT_INLINE_PARSERS = AliasSeq!(
     MarkdownCodeSpanInlineParser,
-    MarkdownLinkInlineParser
+    MarkdownLinkInlineParser,
+    MarkdownEmphesisInlineParser
 );
 
 alias MarkdownAstDefault = MarkdownAst!(

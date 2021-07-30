@@ -192,7 +192,7 @@ struct MarkdownPlainTextInlineHtmlRenderer
     alias Target = MarkdownPlainTextInline;
     alias States = MarkdownNoState;
 
-    static void render(Leaf, Parent, Renderer)(Leaf parentAsBlock, Parent parentAsValue, Target target, ref Appender!(char[]) output, ref Renderer rnd)
+    static void render(Leaf, Parent, Renderer)(Leaf parentAsBlock, Parent parentAsValue, Target target, ref Appender!(char[]) output, ref Renderer rnd, size_t index)
     {
         output.put(target.text);
     }
@@ -203,7 +203,7 @@ struct MarkdownCodeSpanInlineHtmlRenderer
     alias Target = MarkdownCodeSpanInline;
     alias States = MarkdownNoState;
 
-    static void render(Leaf, Parent, Renderer)(Leaf parentAsBlock, Parent parentAsValue, Target target, ref Appender!(char[]) output, ref Renderer rnd)
+    static void render(Leaf, Parent, Renderer)(Leaf parentAsBlock, Parent parentAsValue, Target target, ref Appender!(char[]) output, ref Renderer rnd, size_t index)
     {
         output.put("<code>");
         output.put(target.code);
@@ -216,7 +216,7 @@ struct MarkdownLinkInlineHtmlRenderer
     alias Target = MarkdownLinkInline;
     alias States = MarkdownNoState;
 
-    static void render(Leaf, Parent, Renderer)(Leaf parentAsBlock, Parent parentAsValue, Target target, ref Appender!(char[]) output, ref Renderer rnd)
+    static void render(Leaf, Parent, Renderer)(Leaf parentAsBlock, Parent parentAsValue, Target target, ref Appender!(char[]) output, ref Renderer rnd, size_t index)
     {
         output.put("<a");
         if(target.url.length)
@@ -235,5 +235,46 @@ struct MarkdownLinkInlineHtmlRenderer
         output.put(">");
         output.put(target.label);
         output.put("</a>");
+    }
+}
+
+struct MarkdownEmphesisInlineHtmlRenderer
+{
+    alias Target = MarkdownEmphesisInline;
+    alias States = MarkdownNoState;
+
+    static void render(Leaf, Parent, Renderer)(ref Leaf parentAsBlock, Parent parentAsValue, Target target, ref Appender!(char[]) output, ref Renderer rnd, size_t index)
+    {
+        if(target.renderMode == Target.RenderMode.dont)
+        {
+            output.put(target.emphChar.repeat.take(target.count));
+            return;
+        }
+
+        foreach(ref inline; parentAsBlock.inlines[index+1..$])
+        {
+            if(inline.isMarkdownEmphesisInline)
+            {
+                scope emph = &inline.getMarkdownEmphesisInline();
+                if(emph.emphChar == target.emphChar)
+                {
+                    if(emph.count == target.count)
+                    {
+                        emph.renderMode = Target.RenderMode.end;
+                        break;
+                    }
+                    else
+                        emph.renderMode = Target.RenderMode.dont;
+                }
+            }
+        }
+
+        static const startTags = ["<em>", "<strong>", "<em><strong>"];
+        static const endTags = ["</em>", "</strong>", "</strong></em>"];
+
+        if(target.renderMode == Target.RenderMode.start)
+            output.put(startTags[target.count-1]);
+        else
+            output.put(endTags[target.count-1]);
     }
 }

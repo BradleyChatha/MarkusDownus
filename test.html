@@ -2,8 +2,8 @@
 @date-updated 07-02-2020@
 @title Serialising enums and classes@
 @seo-tag serialise-enum-class@</p><p>
-*Side note: In true D fashion, https://run.dlang.io is broken with no sign of it being fixed (in terms of creating links),
-so from this point on I'll be using https://godbolt.org*</p><p>
+<em>Side note: In true D fashion, https://run.dlang.io is broken with no sign of it being fixed (in terms of creating links),
+so from this point on I'll be using https://godbolt.org</em></p><p>
 In this post we'll cover how to serialise classes and enums, both of which have certain considerations to go over.</p><p></p><h2>Serialising enums</h2><p>
 The first thing to consider with enums is whether to serialise them via their names
 (e.g. <code>PersonType.Student</code> would become "Student"), or to serialise them
@@ -26,11 +26,11 @@ struct Person
     PersonType type;
 }
 </code></pre><p></p><h3>The issue with enums</h3><p>
-There is one fairly important yet easy to solve issue with enums - they count as both an enum *and* their value type.</p><p>
+There is one fairly important yet easy to solve issue with enums - they count as both an enum <em>and</em> their value type.</p><p>
 For example, take our newly made <code>PersonType</code> enum. It is just a
 bog standard enum where the value type is an <code>int</code> (by default).</p><p>
 The <code>PersonType</code> enum, due to having a value type of <code>int</code>, will actually
-**pass** a check such as <code>is(PersonType == int)</code> and <code>isNumeric!PersonType</code>.
+<strong>pass</strong> a check such as <code>is(PersonType == int)</code> and <code>isNumeric!PersonType</code>.
 Needless to say this is a bit of a roadblock due to our decision to serialise by name instead of value.</p><p>
 Fortunately, this issue is actually super easy to work around. Via <code>is(T == enum)</code> we can create
 code that works/doesn't work specifically for enums.</p><p></p><h3>Upgrading our serialise function</h3><p>
@@ -46,7 +46,7 @@ JSONValue serialise(T)(T value)
     { /* omitted for brevity */ }
 }
 </code></pre><p>
-There are two options for us to take here:</p><p></p><ul><li><p>Modify <code>isPrimitiveType</code> so that it ignores enums, then handle enums later on in the function.</p></li></ul><p></p><ul><li><p>Handle enums inside the function **before** handling primitive types, so enums have a higher 'priority'.</p></li></ul><p>
+There are two options for us to take here:</p><p></p><ul><li><p>Modify <code>isPrimitiveType</code> so that it ignores enums, then handle enums later on in the function.</p></li></ul><p></p><ul><li><p>Handle enums inside the function <strong>before</strong> handling primitive types, so enums have a higher 'priority'.</p></li></ul><p>
 We will in fact be doing both: option #1 for the <code>serialise</code> function, and then option #2 for the
 <code>deserialise</code> function. This is to demonstrate both options.</p><p>
 To start, we can use <code>!is(T == enum)</code> with <code>isPrimitiveType</code> so that it will ignore enums:</p><p></p><pre><code>// https://godbolt.org/z/_edV5X
@@ -138,7 +138,7 @@ void main()
 </code></pre><p></p><h2>Serialising classes</h2><p>
 Serialising classes is where a lot of the more important decisions come into play, because
 structs and classes are very different from one another.</p><p>
-For example, while we *could* just treat classes like they're structs, that will only support
+For example, while we <em>could</em> just treat classes like they're structs, that will only support
 a very tiny amount of classes because:</p><p></p><ul><li><p>Classes can be null.</p></li></ul><p></p><ul><li><p>Classes may not have a reliable way to construct them (more on that later in the post).</p></li></ul><p></p><ul><li><p>Classes tend to not expose variables directly, but via getters, setters, and other functions.</p></li></ul><p></p><ul><li><p>And many other reasons...</p></li></ul><p>
 This post will provide a way to handle some of these issues, but in a real project you may
 need to fine tune how the serialiser works for your own needs as my solutions are going to be
@@ -299,7 +299,7 @@ void main()
             null
     */
 }
-</code></pre><p></p><h3>Handling 'classes may not have a reliable way to construct them' with __traits(compiles)</h3><p>
+</code></pre><p></p><h3>Handling 'classes may not have a reliable way to construct them' with <strong>traits(compiles)</h3><p>
 Currently, we use the code <code>new T()</code> to construct a new instance of a class.
 This will only work if the class has either no constructors, or a default constructor.</p><p>
 Again, realistically, classes are very likely to have parameterised constructors and are likely
@@ -381,7 +381,7 @@ for your use cases.</p><p>
 The solution I will be going for is to add support for classes and structs to provide a static
 <code>deserialise</code> function. This will serve as a workaround for the constructor issue as this
 is essentially just a special constructor, and will also outsource the task of handling deserialisation
-to the class itself, which *technically* handles the issue of classes not generally exposing variables.</p><p>
+to the class itself, which <em>technically</em> handles the issue of classes not generally exposing variables.</p><p>
 A downside of course is that there's more code to be written for classes to support
 deserialisation, and therefore more technical debt over the long term.</p><p>
 While you could also just specifically check for a constructor that takes a <code>JSONValue</code>,
@@ -529,7 +529,7 @@ void main()
 }
 </code></pre><p></p><h2>Conclusion</h2><p>
 Our serialiser can now serialise enums by name and has some dodgey support for serialising
-classes, meaning it's starting to shape up to be at least *kind of* useable. Maybe.
+classes, meaning it's starting to shape up to be at least <em>kind of</em> useable. Maybe.
 If you're desperate.</p><p>
 The next thing we'll look into is to serialise arrays and associative arrays.</p><p></p><h2>Excercises</h2><p></p><h3>Add support for classes and structs to provide their own serialise function</h3><p>
 This might be something I end up doing in a future post, but for now this is a

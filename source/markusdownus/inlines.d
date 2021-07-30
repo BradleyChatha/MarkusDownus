@@ -20,6 +20,20 @@ struct MarkdownLinkInline
     bool isImage;
 }
 
+struct MarkdownEmphesisInline
+{
+    char emphChar;
+    uint count;
+
+    enum RenderMode
+    {
+        start,
+        end,
+        dont
+    }
+    RenderMode renderMode = RenderMode.start; // Used in the render pass.
+}
+
 @MarkdownInlineParser('`')
 struct MarkdownCodeSpanInlineParser
 {
@@ -161,6 +175,28 @@ struct MarkdownLinkInlineParser
             chars.slice(urlStart, urlEnd),
             chars.slice(titleStart, titleEnd),
             isImage
+        ));
+        return MarkdownInlinePassResult.foundInline;
+    }
+}
+
+@MarkdownInlineParser('*')
+@MarkdownInlineParser('_')
+struct MarkdownEmphesisInlineParser
+{
+    alias Targets = MarkdownEmphesisInline;
+
+    static MarkdownInlinePassResult tryParse(AstT)(ref CharReader chars, ref AstT.Leaf leaf)
+    {
+        const emphChar = chars.peek(0);
+        const count = chars.peekSameChar(emphChar);
+        chars.advance(count);
+        
+        const renderAsText = count > 3 || chars.eof || chars.peek().isInlineWhite;
+        leaf.push(MarkdownEmphesisInline(
+            emphChar,
+            cast(uint)count,
+            renderAsText ? MarkdownEmphesisInline.RenderMode.dont : MarkdownEmphesisInline.RenderMode.start
         ));
         return MarkdownInlinePassResult.foundInline;
     }

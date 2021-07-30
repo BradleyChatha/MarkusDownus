@@ -63,7 +63,12 @@ private void handleInlines(AstT)(ref AstT.Leaf leaf, string text)
 
         if(wasEscaped)
         {
-            chars.advance(1);
+            if(chars.slice(plainStart, chars.cursor).length)
+                leaf.push(MarkdownPlainTextInline(chars.slice(plainStart, chars.cursor)));
+            chars.advance(2);
+            if(!chars.eof)
+                leaf.push(MarkdownPlainTextInline(chars.slice(chars.cursor-1, chars.cursor)));
+            plainStart = chars.cursor;
             continue;
         }
 

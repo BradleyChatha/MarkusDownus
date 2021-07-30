@@ -23,7 +23,8 @@ alias MARKDOWN_DEFAULT_LEAF_HTML_RENDERERS = AliasSeq!(
 alias MARKDOWN_DEFAULT_INLINE_HTML_RENDERERS = AliasSeq!(
     MarkdownPlainTextInlineHtmlRenderer,
     MarkdownCodeSpanInlineHtmlRenderer,
-    MarkdownLinkInlineHtmlRenderer
+    MarkdownLinkInlineHtmlRenderer,
+    MarkdownEmphesisInlineHtmlRenderer
 );
 
 alias MarkdownRendererHtmlDefault = MarkdownRenderer!(
@@ -103,7 +104,7 @@ string render(AstT, RendererT)(AstT.Container root, ref RendererT rnd)
     return output.data.assumeUnique;
 }
 
-private void renderContainer(AstT, RendererT)(AstT.Container container, ref Appender!(char[]) output, ref RendererT rnd)
+private void renderContainer(AstT, RendererT)(ref AstT.Container container, ref Appender!(char[]) output, ref RendererT rnd)
 {
     visitAll!((block)
     {
@@ -112,7 +113,7 @@ private void renderContainer(AstT, RendererT)(AstT.Container container, ref Appe
             static if(is(renderer.Target == typeof(block)))
             {
                 renderer.begin(block, output, rnd);
-                foreach(child; container.children)
+                foreach(ref child; container.children)
                 {
                     renderer.beginChild(block, child, output, rnd);
                     if(child.isLeaf)
@@ -128,7 +129,7 @@ private void renderContainer(AstT, RendererT)(AstT.Container container, ref Appe
     })(container);
 }
 
-private void renderLeaf(AstT, RendererT)(AstT.Leaf leaf, ref Appender!(char[]) output, ref RendererT rnd)
+private void renderLeaf(AstT, RendererT)(ref AstT.Leaf leaf, ref Appender!(char[]) output, ref RendererT rnd)
 {
     visitAll!((block)
     {
@@ -137,8 +138,8 @@ private void renderLeaf(AstT, RendererT)(AstT.Leaf leaf, ref Appender!(char[]) o
             static if(is(renderer.Target == typeof(block)))
             {
                 renderer.begin(block, output, rnd);
-                foreach(inline; leaf.inlines)
-                    renderInline!(typeof(block), AstT, RendererT)(leaf, block, inline, output, rnd);
+                foreach(i, ref inline; leaf.inlines)
+                    renderInline!(typeof(block), AstT, RendererT)(leaf, block, inline, output, rnd, i);
                 renderer.end(block, output, rnd);
                 return;
             }
@@ -147,11 +148,12 @@ private void renderLeaf(AstT, RendererT)(AstT.Leaf leaf, ref Appender!(char[]) o
 }
 
 private void renderInline(ParentT, AstT, RendererT)(
-    AstT.Leaf parentAsBlock,
-    ParentT parentAsValue, 
-    AstT.Inline inline, 
+    ref AstT.Leaf parentAsBlock,
+    ref ParentT parentAsValue, 
+    ref AstT.Inline inline, 
     ref Appender!(char[]) output, 
-    ref RendererT rnd
+    ref RendererT rnd,
+    size_t index,
 )
 {
     visitAll!((inlineValue)
@@ -160,7 +162,7 @@ private void renderInline(ParentT, AstT, RendererT)(
         {
             static if(is(renderer.Target == typeof(inlineValue)))
             {
-                renderer.render(parentAsBlock, parentAsValue, inlineValue, output, rnd);
+                renderer.render(parentAsBlock, parentAsValue, inlineValue, output, rnd, index);
                 return;
             }
         }

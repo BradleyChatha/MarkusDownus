@@ -43,6 +43,7 @@ unittest
 
         case_.got = render(case_.text);
         case_.wasRun = true;
+        case_.expected = fixed.data.idup;
         if(!case_.got.strip.equal(fixed.data.strip))
             failed ~= case_;
         else
