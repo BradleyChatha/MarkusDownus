@@ -93,7 +93,7 @@ package mixin template MarkdownAstNode(NodeType type, Targets_...)
     union Values
     {
         static foreach(i, target; AliasSeq!(Targets))
-            mixin(__traits(identifier, target)~" "~Names[i]~";");
+            mixin("target "~Names[i]~";");
     }
 
     private Kind kind;

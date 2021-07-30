@@ -261,22 +261,59 @@ struct MarkdownEmphesisInlineHtmlRenderer
             output.put(target.emphChar.repeat.take(target.count));
             return;
         }
-
-        foreach(ref inline; parentAsBlock.inlines[index+1..$])
+        
+        bool foundPartner = false;
+        if(target.renderMode == Target.RenderMode.start)
         {
-            if(inline.isMarkdownEmphesisInline)
+            if(
+                !target.prefixWhite
+            ||  (target.prefixWhite && target.postfixWhite)
+            )
             {
-                scope emph = &inline.getMarkdownEmphesisInline();
-                if(emph.emphChar == target.emphChar)
+                output.put(target.emphChar.repeat.take(target.count));
+                return;
+            }
+
+            foreach(ref inline; parentAsBlock.inlines[index+1..$])
+            {
+                if(inline.isMarkdownEmphesisInline)
                 {
-                    if(emph.count == target.count)
+                    scope emph = &inline.getMarkdownEmphesisInline();
+                    if(emph.emphChar == target.emphChar)
                     {
-                        emph.renderMode = Target.RenderMode.end;
-                        break;
+                        if(emph.count == target.count && emph.renderMode == Target.RenderMode.start)
+                        {
+                            foundPartner = true;
+                            emph.renderMode = Target.RenderMode.end;
+                            break;
+                        }
+                        else
+                            emph.renderMode = Target.RenderMode.dont;
                     }
-                    else
-                        emph.renderMode = Target.RenderMode.dont;
                 }
+            }
+
+            if(!foundPartner)
+            {
+                foreach(ref inline; parentAsBlock.inlines[index+1..$])
+                {
+                    if(inline.isMarkdownEmphesisInline)
+                    {
+                        scope emph = &inline.getMarkdownEmphesisInline();
+                        if(emph.emphChar == target.emphChar && emph.count == target.count)
+                            emph.renderMode = Target.RenderMode.start;
+                    }
+                }
+                output.put(target.emphChar.repeat.take(target.count));
+                return;
+            }
+        }
+        else
+        {
+            if(!target.postfixWhite)
+            {
+                output.put(target.emphChar.repeat.take(target.count));
+                return;
             }
         }
 

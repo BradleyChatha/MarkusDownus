@@ -76,7 +76,7 @@ if(
             this._states[i] = state.init;
     }
 
-    ref auto getState(T)()
+    ref T getState(T)()
     {
         static foreach(i, state; States)
         {
@@ -90,9 +90,16 @@ if(
 
 string render(alias AstT = MarkdownAstDefault, alias RendererT = MarkdownRendererHtmlDefault)(string markdown)
 {
-    auto ctx = blockPass!MarkdownAstDefault(markdown);
-    inlinePass!MarkdownAstDefault(ctx);
-    auto rnd = MarkdownRendererHtmlDefault(true);
+    AstT.Context ctx;
+    RendererT rnd;
+    return render!(AstT, RendererT)(markdown, ctx, rnd);
+}
+
+string render(alias AstT = MarkdownAstDefault, alias RendererT = MarkdownRendererHtmlDefault)(string markdown, out AstT.Context ctx, out RendererT rnd)
+{
+    ctx = blockPass!AstT(markdown);
+    inlinePass!AstT(ctx);
+    rnd = RendererT(true);
     auto result = render(ctx.root, rnd);
     return result;
 }

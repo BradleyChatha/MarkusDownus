@@ -24,6 +24,8 @@ struct MarkdownEmphesisInline
 {
     char emphChar;
     uint count;
+    bool prefixWhite;
+    bool postfixWhite;
 
     enum RenderMode
     {
@@ -141,6 +143,8 @@ struct MarkdownLinkInlineParser
                     foundEnd = true;
                     break;
                 }
+                else if(chars.peek() == '\n')
+                    return MarkdownInlinePassResult.didNothing;
                 chars.advance(1);
             }
         }
@@ -188,14 +192,29 @@ struct MarkdownEmphesisInlineParser
 
     static MarkdownInlinePassResult tryParse(AstT)(ref CharReader chars, ref AstT.Leaf leaf)
     {
-        const emphChar = chars.peek(0);
+        char prePeek = '\n'; // Solves a special case where an emphesis character is the first character.
+        if(chars.cursor > 0)
+        {
+            chars.retreat(1);
+            prePeek = chars.peek();
+            chars.advance(1);
+        }
+
+        const emphChar = chars.peek();
         const count = chars.peekSameChar(emphChar);
-        chars.advance(count);
-        
-        const renderAsText = count > 3 || chars.eof || chars.peek().isInlineWhite;
+        chars.advance(count-1);
+        chars.advance(1);
+
+        auto postPeek = '\n';
+        if(!chars.eof)
+            postPeek = chars.peek();
+
+        const renderAsText = count > 3; // Further checks are done at render time, since the renderer can see the whole inline AST.
         leaf.push(MarkdownEmphesisInline(
             emphChar,
             cast(uint)count,
+            prePeek == ' ' || prePeek == '\n',
+            postPeek == ' ' || postPeek == '\n',
             renderAsText ? MarkdownEmphesisInline.RenderMode.dont : MarkdownEmphesisInline.RenderMode.start
         ));
         return MarkdownInlinePassResult.foundInline;

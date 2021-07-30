@@ -31,7 +31,7 @@ unittest
     Case[] success;
     Case[] failed;
 
-    foreach(ref case_; all)
+    foreach(caseI, ref case_; all)
     {
         Appender!(char[]) fixed;
         foreach(i, ch; case_.expected) // Try to make the test expected output match our lack of new lines.

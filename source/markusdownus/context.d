@@ -39,12 +39,15 @@ struct MarkdownParseContext(AstT)
     void appendToParagraph(string line)
     {
         this.paragraph.lines ~= line;
+        this.paragraph.lines ~= '\n';
     }
 
     void pushParagraphIfNeeded()
     {
         if(this.paragraph != MarkdownParagraphLeaf.init)
         {
+            if(this.paragraph.lines.length && this.paragraph.lines[$-1] == '\n')
+                this.paragraph.lines = this.paragraph.lines[0..$-1];
             this.push!(typeof(this.paragraph), true)(this.paragraph, 0);
             this.paragraph = MarkdownParagraphLeaf.init;
         }

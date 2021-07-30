@@ -19,7 +19,7 @@ struct MarkdownUnorderedListContainer
 @MarkdownHasInlines("lines")
 struct MarkdownParagraphLeaf
 {
-    string[] lines;
+    char[] lines;
 }
 
 struct MarkdownThematicBreakLeaf

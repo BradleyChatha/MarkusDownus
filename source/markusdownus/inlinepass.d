@@ -24,17 +24,7 @@ private void handleLeaf(AstT)(ref AstT.Leaf leaf)
             static foreach(uda; udas)
             {{
                 const text = mixin("block."~uda.whichSymbol);
-                static if(is(typeof(text) : const(string[])))
-                {
-                    foreach(i, line; text)
-                    {
-                        handleInlines!AstT(leaf, line);
-                        if(i + 1 != text.length)
-                            leaf.push(MarkdownPlainTextInline("\n"));
-                    }
-                }
-                else
-                    handleInlines!AstT(leaf, text);
+                handleInlines!AstT(leaf, text.assumeUnique);
             }}
         }
     )(leaf);
@@ -192,4 +182,10 @@ unittest
     ctx = blockPass!MarkdownAstDefault("![foo](/url \"title\")");
     inlinePass!MarkdownAstDefault(ctx);
     assert(ctx.root.children[0].getLeaf.inlines[0].isMarkdownLinkInline, ctx.root.formatAst());
+}
+
+@("oddities")
+unittest
+{
+    auto result = render("a * foo bar*");
 }

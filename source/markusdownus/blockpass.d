@@ -23,6 +23,10 @@ AstT.Context blockPass(AstT)(string input)
 
 void blockPass(AstT)(ref AstT.Context ctx)
 {
+    size_t _iforgot;
+    while(!ctx.chars.eof && ctx.chars.isRestOfLineEmpty(_iforgot))
+        ctx.chars.eatLine(_iforgot);
+
     while(!ctx.chars.eof)
     {
         ctx.lineWhite = ctx.chars.eatInlineWhite();

@@ -205,6 +205,9 @@ struct CharReader
     @safe @nogc
     bool atStartOfLine() nothrow const
     {
+        if(this._cursor == 0)
+            return true;
+
         size_t offset = this._cursor;
         while(offset > 0)
         {

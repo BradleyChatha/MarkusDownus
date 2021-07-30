@@ -266,7 +266,7 @@ void main()
             null
     */
 }
-</code></pre><h3>Handling &apos;classes may not have a reliable way to construct them&apos; with <strong>traits(compiles)</h3><p>Currently, we use the code <code>new T()</code> to construct a new instance of a class.
+</code></pre><h3>Handling &apos;classes may not have a reliable way to construct them&apos; with __traits(compiles)</h3><p>Currently, we use the code <code>new T()</code> to construct a new instance of a class.
 This will only work if the class has either no constructors, or a default constructor.</p><p>Again, realistically, classes are very likely to have parameterised constructors and are likely
 incapable of supporting a default constructor.</p><p>Just as a note, this only applies to deserialisation as serialising does not require
 the construction of objects (well, unless you want it to).</p><p>There are many ways you may want to handle this, such as using std.traits#Parameters
