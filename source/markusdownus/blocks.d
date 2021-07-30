@@ -88,6 +88,9 @@ struct MarkdownQuoteContainerParser
             return MarkdownBlockPassResult.closeContainer;
         }
 
+        if(ctx.lineWhite.spaces >= 4)
+            return MarkdownBlockPassResult.didNothing;
+
         size_t newLineChar;
         if(ctx.chars.isRestOfLineEmpty(newLineChar))
         {
@@ -270,6 +273,7 @@ struct MarkdownFencedCodeLeafParser
 
     static MarkdownBlockPassResult tryParse(AstT)(ref AstT.Context ctx)
     {
+        ctx.pushParagraphIfNeeded();
         const count = ctx.chars.peekSameChar('`');
         if(count < 3)
             return MarkdownBlockPassResult.didNothing;

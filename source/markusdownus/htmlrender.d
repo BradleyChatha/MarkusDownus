@@ -86,6 +86,7 @@ struct MarkdownQuoteContainerHtmlRenderer
     }
 }
 
+@MarkdownRenderOnlyWithInlines
 struct MarkdownParagraphLeafHtmlRenderer
 {
     alias Target = MarkdownParagraphLeaf;
@@ -93,11 +94,15 @@ struct MarkdownParagraphLeafHtmlRenderer
 
     static void begin(Renderer)(Target target, ref Appender!(char[]) output, ref Renderer rnd)
     {
+        // if(!target.inlines.length)
+        //     return;
         output.put("<p>");
     }
 
     static void end(Renderer)(Target target, ref Appender!(char[]) output, ref Renderer rnd)
     {
+        // if(!target.inlines.length)
+        //     return;
         output.put("</p>");
     }
 }
@@ -304,14 +309,6 @@ struct MarkdownEmphesisInlineHtmlRenderer
                             emph.renderMode = Target.RenderMode.start;
                     }
                 }
-                output.put(target.emphChar.repeat.take(target.count));
-                return;
-            }
-        }
-        else
-        {
-            if(!target.postfixWhite)
-            {
                 output.put(target.emphChar.repeat.take(target.count));
                 return;
             }

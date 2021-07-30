@@ -4,6 +4,7 @@ import std;
 import markusdownus;
 
 struct MarkdownNoState{}
+struct MarkdownRenderOnlyWithInlines{}
 
 alias MARKDOWN_DEFAULT_CONTAINER_HTML_RENDERERS = AliasSeq!(
     MarkdownRootContainerHtmlRenderer,
@@ -144,6 +145,10 @@ private void renderLeaf(AstT, RendererT)(ref AstT.Leaf leaf, ref Appender!(char[
         {
             static if(is(renderer.Target == typeof(block)))
             {
+                static if(hasUDA!(renderer, MarkdownRenderOnlyWithInlines))
+                if(!leaf.inlines.length)
+                    return;
+                    
                 renderer.begin(block, output, rnd);
                 foreach(i, ref inline; leaf.inlines)
                     renderInline!(typeof(block), AstT, RendererT)(leaf, block, inline, output, rnd, i);

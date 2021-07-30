@@ -187,5 +187,8 @@ unittest
 @("oddities")
 unittest
 {
-    auto result = render("a * foo bar*");
+    auto b = ("                    
+*directly to the function's signature*.");
+    auto result = render(b);
+    writeln(result);
 }
