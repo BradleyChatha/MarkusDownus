@@ -3,6 +3,17 @@ module markusdownus.htmlrender;
 import std;
 import markusdownus;
 
+auto escapeHtml(Range)(Range r)
+{
+    return substitute!(
+        "\"", "&quot;",
+        "&", "&amp;",
+        "'", "&apos;",
+        "<", "&lt;",
+        ">", "&gt;",
+    )(r.byCodeUnit);
+}
+
 struct MarkdownRootContainerHtmlRenderer
 {
     alias Target = MarkdownRootContainer;
@@ -194,7 +205,7 @@ struct MarkdownPlainTextInlineHtmlRenderer
 
     static void render(Leaf, Parent, Renderer)(Leaf parentAsBlock, Parent parentAsValue, Target target, ref Appender!(char[]) output, ref Renderer rnd, size_t index)
     {
-        output.put(target.text);
+        output.put(target.text.escapeHtml);
     }
 }
 

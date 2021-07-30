@@ -65,9 +65,12 @@ private void handleInlines(AstT)(ref AstT.Leaf leaf, string text)
         {
             if(chars.slice(plainStart, chars.cursor).length)
                 leaf.push(MarkdownPlainTextInline(chars.slice(plainStart, chars.cursor)));
-            chars.advance(2);
+            chars.advance(1);
             if(!chars.eof)
-                leaf.push(MarkdownPlainTextInline(chars.slice(chars.cursor-1, chars.cursor)));
+            {
+                leaf.push(MarkdownPlainTextInline(chars.slice(chars.cursor, chars.cursor+1)));
+                chars.advance(1);
+            }
             plainStart = chars.cursor;
             continue;
         }

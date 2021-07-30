@@ -143,7 +143,8 @@ void blockPass(AstT)(ref AstT.Context ctx)
         // Step #4: Fuck it, it's a paragraph.
         size_t endOfParagraph;
         ctx.chars.eatLine(endOfParagraph);
-        ctx.appendToParagraph(ctx.chars.slice(start, endOfParagraph));
+        if(!ctx.chars.slice(start, endOfParagraph).all!(ch => ch == ' ' || ch == '\n'))
+            ctx.appendToParagraph(ctx.chars.slice(start, endOfParagraph));
     }
 
     ctx.finaliseBlockPass();

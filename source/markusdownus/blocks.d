@@ -181,7 +181,7 @@ struct MarkdownIndentedCodeLeafParser
 
     static MarkdownBlockPassResult tryParse(AstT)(ref AstT.Context ctx)
     {
-        if(ctx.lineWhite.spaces < 4)
+        if(ctx.lineWhite.spaces < 4 || ctx.paragraph.lines.length)
             return MarkdownBlockPassResult.didNothing;
 
         const start = ctx.chars.cursor;
