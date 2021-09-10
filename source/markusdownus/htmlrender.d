@@ -114,8 +114,12 @@ struct MarkdownHeaderLeafHtmlRenderer
 
     static void begin(Renderer)(Target target, ref Appender!(char[]) output, ref Renderer rnd)
     {
+        import std.ascii : asciiAlphaNum = isAlphaNum, asciiLower = toLower;
         output.put("<h");
         output.put(target.level.to!string);
+        output.put(" id=\"");
+        output.put(target.text.map!(str => str).map!(ch => ch.asciiAlphaNum ? ch.asciiLower() : '-'));
+        output.put('"');
         output.put(">");
     }
 

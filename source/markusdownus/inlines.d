@@ -138,7 +138,6 @@ struct MarkdownLinkInlineParser
                 }
                 else if(chars.peek() == ')')
                 {
-                    chars.advance(1);
                     urlEnd = chars.cursor;
                     foundEnd = true;
                     break;

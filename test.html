@@ -24,7 +24,7 @@ function that was created in the first post of this series.</p><pre><code>T dese
 }
 </code></pre><p>This kind of &apos;design&apos; being used here is to have a singular template function
 (<code>deserialise</code>) that takes any type as its input, and then leverage <code>static if</code> to determine
-the actual functionality.</p><p>What if we could write this another way? First, we need to know about template constraints.</p><h2>Template constraints</h2><pre><code></code></pre><p>Instead of a function that can take any type, imagine that we instead of multiple seperate <em>templated</em> functions that
+the actual functionality.</p><p>What if we could write this another way? First, we need to know about template constraints.</p><h2 id="template-constraints">Template constraints</h2><pre><code></code></pre><p>Instead of a function that can take any type, imagine that we instead of multiple seperate <em>templated</em> functions that
 can only take certain types (e.g. only integers, but any kind of integer).</p><pre><code></code></pre><p>While we could go the route of nesting a bunch of <code>static ifs</code> inside the function&apos;s body
 followed by a <code>static assert</code> should all of these <code>ifs</code> fail, what if instead
 we tell the compiler the <em>exact</em> conditions needed for it to even consider using the template function?</p><p>I feel an example will help clear things up:</p><pre><code>void someFunc(T)(T value)
@@ -58,7 +58,7 @@ if(is(T == string) || is(T == long))
     import std.stdio : writeln;
     writeln(T.stringof);
 }
-</code></pre><p>So where am I going with this?</p><h2>Using constraints to create template overloads</h2><p>By using constraints, we can essentially create overloads for template functions.</p><p>Take these two functions for example:</p><pre><code>void someFunc(T)(T value)
+</code></pre><p>So where am I going with this?</p><h2 id="using-constraints-to-create-template-overloads">Using constraints to create template overloads</h2><p>By using constraints, we can essentially create overloads for template functions.</p><p>Take these two functions for example:</p><pre><code>void someFunc(T)(T value)
 if(is(T == string))
 {
     // stuff with strings
@@ -95,7 +95,7 @@ if(isIntegral!T)
 }
 
 // etc.
-</code></pre><h2>Conclusion</h2><pre><code></code></pre><p>There are pros and cons to both designs, and there are of course more complicated ways/features
+</code></pre><h2 id="conclusion">Conclusion</h2><pre><code></code></pre><p>There are pros and cons to both designs, and there are of course more complicated ways/features
 that can be used to design your code around templates that need to discriminate by things like types.</p><p>However, the main point of this one-off post was just to show and explain a different way
 of doing things, so that it doesn&apos;t seem like a nested web of <code>static ifs</code> is the only
 way to handle something like this.</p><p>D will let you mold your code to the exact vision (or close enough to it) of how you want your API to look
