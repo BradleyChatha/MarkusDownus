@@ -8,16 +8,6 @@ configuration "no-asm" {
     versions "__DUMMY_THICC"
 }
 
-configuration "with-asm" {
-    versions "MD_HasAsm" platform="windows"
-    versions "MD_HasAsm" platform="linux"
-
-    sourceFiles "libd_win64.obj" platform="windows"
-    sourceFiles "libd_sysv.obj"  platform="linux"
-
-    preBuildCommands "powershell ./source/asm/make.ps1"
-}
-
 configuration "unittest" {
     dependency "silly" version="~>1.1.1"
 }

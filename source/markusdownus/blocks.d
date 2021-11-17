@@ -207,7 +207,7 @@ struct MarkdownIndentedCodeLeafParser
 
         ctx.chars.cursor = newLineChar;
         ctx.push(MarkdownIndentedCodeLeaf(
-            ctx.chars.slice(start, newLineChar)
+            ctx.chars.slice(start, ctx.chars.eof ? newLineChar : newLineChar + 1)
         ), 20);
         return MarkdownBlockPassResult.foundLeaf;
     }
@@ -234,6 +234,8 @@ struct MarkdownHeaderLeafParser
         const start = ctx.chars.cursor;
         size_t end;
         ctx.chars.eatLine(end);
+        while(end > start && (ctx.chars.at(end-1) == '#' || ctx.chars.at(end-1).isInlineWhite))
+            end--;
         ctx.push(MarkdownHeaderLeaf(cast(uint)count, ctx.chars.slice(start, end).strip), 10);
         return MarkdownBlockPassResult.foundLeaf;
     }

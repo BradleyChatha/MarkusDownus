@@ -24,18 +24,24 @@ function that was created in the first post of this series.</p><pre><code>T dese
 }
 </code></pre><p>This kind of &apos;design&apos; being used here is to have a singular template function
 (<code>deserialise</code>) that takes any type as its input, and then leverage <code>static if</code> to determine
-the actual functionality.</p><p>What if we could write this another way? First, we need to know about template constraints.</p><h2 id="template-constraints">Template constraints</h2><pre><code></code></pre><p>Instead of a function that can take any type, imagine that we instead of multiple seperate <em>templated</em> functions that
-can only take certain types (e.g. only integers, but any kind of integer).</p><pre><code></code></pre><p>While we could go the route of nesting a bunch of <code>static ifs</code> inside the function&apos;s body
+the actual functionality.</p><p>What if we could write this another way? First, we need to know about template constraints.</p><h2 id="template-constraints">Template constraints</h2><pre><code>
+</code></pre><p>Instead of a function that can take any type, imagine that we instead of multiple seperate <em>templated</em> functions that
+can only take certain types (e.g. only integers, but any kind of integer).</p><pre><code>
+</code></pre><p>While we could go the route of nesting a bunch of <code>static ifs</code> inside the function&apos;s body
 followed by a <code>static assert</code> should all of these <code>ifs</code> fail, what if instead
 we tell the compiler the <em>exact</em> conditions needed for it to even consider using the template function?</p><p>I feel an example will help clear things up:</p><pre><code>void someFunc(T)(T value)
 if(is(T == string) || is(T == long))
 {
     // Do stuff.
 }
-</code></pre><pre><code></code></pre><p>So what&apos;s happening here is that we&apos;re creating a template function called <code>someFunc</code>
-which takes a type parameter (<code>T</code>), and it does stuff, similar to the other template functions we&apos;ve made so far.</p><pre><code></code></pre><p>However, take note that we can actually attach an <code>if</code> statement <em>directly to the function&apos;s signature</em>.
-This is known as a constraint which you can imagine as a <code>static if</code> that applies for the entire function as a whole.</p><pre><code></code></pre><p>The constraint&apos;s condition must pass the given template parameters, otherwise the compiler will refuse to use it for
-that specific permutation.</p><pre><code></code></pre><p>For example:</p><pre><code>// https://run.dlang.io/is/bYQUBq
+</code></pre><pre><code>
+</code></pre><p>So what&apos;s happening here is that we&apos;re creating a template function called <code>someFunc</code>
+which takes a type parameter (<code>T</code>), and it does stuff, similar to the other template functions we&apos;ve made so far.</p><pre><code>
+</code></pre><p>However, take note that we can actually attach an <code>if</code> statement <em>directly to the function&apos;s signature</em>.
+This is known as a constraint which you can imagine as a <code>static if</code> that applies for the entire function as a whole.</p><pre><code>
+</code></pre><p>The constraint&apos;s condition must pass the given template parameters, otherwise the compiler will refuse to use it for
+that specific permutation.</p><pre><code>
+</code></pre><p>For example:</p><pre><code>// https://run.dlang.io/is/bYQUBq
 void main()
 {
     someFunc!long(200);              // Fine
@@ -69,9 +75,13 @@ if(is(T == long))
 {
     // stuff with longs
 }
-</code></pre><pre><code></code></pre><p>They both have the same name, same template parameters, and same runtime parameters. The
-only difference are their constraints.</p><pre><code></code></pre><p>When calling a template function with overloads like this, the compiler will try to match
-each overload with the parameters that you pass to it (which includes testing the constraints).</p><pre><code></code></pre><ul><li><p>If no overloads matches your parameters, the compile fails.</p></li></ul><ul><li><p>If more than one overload matches your parameters, the compile fails due to ambiguity.</p></li></ul><ul><li><p>If exactly one overload matches your parameters, that overload will be used.</p></li></ul><pre><code></code></pre><p>So it&apos;s pretty much the same as overloading a non-templated function, except we have more specific
+</code></pre><pre><code>
+</code></pre><p>They both have the same name, same template parameters, and same runtime parameters. The
+only difference are their constraints.</p><pre><code>
+</code></pre><p>When calling a template function with overloads like this, the compiler will try to match
+each overload with the parameters that you pass to it (which includes testing the constraints).</p><pre><code>
+</code></pre><ul><li><p>If no overloads matches your parameters, the compile fails.</p></li></ul><ul><li><p>If more than one overload matches your parameters, the compile fails due to ambiguity.</p></li></ul><ul><li><p>If exactly one overload matches your parameters, that overload will be used.</p></li></ul><pre><code>
+</code></pre><p>So it&apos;s pretty much the same as overloading a non-templated function, except we have more specific
 control on when each overload can be used thanks to constraints.</p><p>What this means is that instead of a singular <code>deserialise</code> function with a bunch
 of <code>static ifs</code>, you could also/instead use seperate overloads for each type
 of data you want to deserialise:</p><pre><code>// For strings
@@ -95,7 +105,8 @@ if(isIntegral!T)
 }
 
 // etc.
-</code></pre><h2 id="conclusion">Conclusion</h2><pre><code></code></pre><p>There are pros and cons to both designs, and there are of course more complicated ways/features
+</code></pre><h2 id="conclusion">Conclusion</h2><pre><code>
+</code></pre><p>There are pros and cons to both designs, and there are of course more complicated ways/features
 that can be used to design your code around templates that need to discriminate by things like types.</p><p>However, the main point of this one-off post was just to show and explain a different way
 of doing things, so that it doesn&apos;t seem like a nested web of <code>static ifs</code> is the only
 way to handle something like this.</p><p>D will let you mold your code to the exact vision (or close enough to it) of how you want your API to look

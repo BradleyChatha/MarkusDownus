@@ -2,7 +2,7 @@
 
 A highly extensible Markdown parser that pretends to be CommonMark compliant:
 
-`Passed 108 (16.5644%) | Failed 375 (57.5153%) | Ignored 169 (25.9202%)`
+`Passed 152 (23.3129%) | Failed 500 (76.6871%) | Ignored 0 (0%)`
 
 *oh dear*
 

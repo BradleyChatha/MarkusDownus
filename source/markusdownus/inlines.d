@@ -132,8 +132,8 @@ struct MarkdownLinkInlineParser
                 
                 if(chars.peek() == ' ')
                 {
-                    chars.advance(1);
                     urlEnd = chars.cursor;
+                    chars.advance(1);
                     break;
                 }
                 else if(chars.peek() == ')')
@@ -215,6 +215,39 @@ struct MarkdownEmphesisInlineParser
             prePeek == ' ' || prePeek == '\n',
             postPeek == ' ' || postPeek == '\n',
             renderAsText ? MarkdownEmphesisInline.RenderMode.dont : MarkdownEmphesisInline.RenderMode.start
+        ));
+        return MarkdownInlinePassResult.foundInline;
+    }
+}
+
+@MarkdownInlineParser('<')
+struct MarkdownAutolinkParser
+{
+    alias Targets = MarkdownLinkInline;
+
+    static MarkdownInlinePassResult tryParse(AstT)(ref CharReader chars, ref AstT.Leaf leaf)
+    {
+        chars.advance(1);
+
+        bool wasNewLine;
+        string text;
+        if(!chars.eatUntilOrEndOfLine('>', text, wasNewLine))
+            return MarkdownInlinePassResult.didNothing;
+        chars.advance(1);
+        if(wasNewLine || !text.length)
+            return MarkdownInlinePassResult.didNothing;
+
+        import std.algorithm : canFind, startsWith, map;
+        import std.array     : array;
+        import std.uni       : toLower;
+        if(text.canFind(' ') || text.canFind('\t'))
+            return MarkdownInlinePassResult.didNothing;
+
+        leaf.push(MarkdownLinkInline(
+            text, 
+            (text.canFind('@') && !text.map!toLower.startsWith("mailto:")) ? "mailto:"~text : text, 
+            null, 
+            false
         ));
         return MarkdownInlinePassResult.foundInline;
     }

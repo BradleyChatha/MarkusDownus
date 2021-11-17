@@ -94,15 +94,11 @@ struct MarkdownParagraphLeafHtmlRenderer
 
     static void begin(Renderer)(Target target, ref Appender!(char[]) output, ref Renderer rnd)
     {
-        // if(!target.inlines.length)
-        //     return;
         output.put("<p>");
     }
 
     static void end(Renderer)(Target target, ref Appender!(char[]) output, ref Renderer rnd)
     {
-        // if(!target.inlines.length)
-        //     return;
         output.put("</p>");
     }
 }
@@ -239,21 +235,18 @@ struct MarkdownLinkInlineHtmlRenderer
     static void render(Leaf, Parent, Renderer)(Leaf parentAsBlock, Parent parentAsValue, Target target, ref Appender!(char[]) output, ref Renderer rnd, size_t index)
     {
         output.put("<a");
-        if(target.url.length)
-        {
-            output.put(" href=\"");
-            output.put(target.url);
-            output.put('"');
-        }
+        output.put(" href=\"");
+        output.put(target.url.escapeHtml);
+        output.put('"');
         
         if(target.title.length)
         {
             output.put(" title=\"");
-            output.put(target.title);
+            output.put(target.title.escapeHtml);
             output.put('"');
         }
         output.put(">");
-        output.put(target.label);
+        output.put(target.label.escapeHtml);
         output.put("</a>");
     }
 }
